@@ -10,17 +10,7 @@ static void print_separator(void)
 }
 
 
-/* print_freq_descending — Stampa i caratteri in ordine di frequenza decrescente.
- * Come funziona:
- * 1. Conta le frequenze in un array di 256 posizioni (come build_heap).
- * 2. Usa un semplice algoritmo di ordinamento per selezione (selection sort)
- *    per stampare i caratteri dal piu' frequente al meno frequente.
- *    Selection sort e' O(n^2) ma qui n <= 256 quindi va benissimo.
- *
- * Selection sort:
- *   Ad ogni passo, cerca il massimo tra gli elementi non ancora stampati,
- *   lo stampa e azzera il suo conteggio per non trovarlo di nuovo.
- */
+/* print_freq_descending — Stampa i caratteri in ordine di frequenza decrescente. */
 static void print_freq_descending(const char *text, int length)
 {
     int freq[ASCII_SIZE] = {0};
@@ -123,17 +113,7 @@ int main(void)
     printf("Testo di test (%d caratteri):\n\"%s\"\n", length, text);
 
 
-    /* ==============================================================
-     * SCENARIO 1 — Analisi delle frequenze
-     * ==============================================================
-     * Obiettivo: mostrare che build_heap analizza correttamente
-     * le frequenze dei caratteri nel testo.
-     *
-     * Cosa facciamo:
-     * 1. Chiamiamo build_heap che conta le frequenze e crea la heap
-     * 2. Stampiamo i caratteri in ordine di frequenza decrescente
-     * 3. Liberiamo la heap (non ci serve piu' per questo scenario)
-     */
+    /* SCENARIO 1 — Analisi delle frequenze */
     print_separator();
     printf("SCENARIO 1 - Analisi delle frequenze\n");
     print_separator();
@@ -144,29 +124,14 @@ int main(void)
 
     print_freq_descending(text, length);
 
-    /* Per lo scenario 1, liberiamo heap e nodi. I nodi nella heap
-     * non fanno parte di un albero, quindi li liberiamo manualmente. */
+    /* Per lo scenario 1, liberiamo heap e nodi. I nodi nella heap non fanno parte di un albero, quindi li liberiamo manualmente. */
     for (int i = 0; i < heap1->size; i++) {
         free(heap1->data[i]);
     }
     free_heap(heap1);
 
 
-    /* ==============================================================
-     * SCENARIO 2 — Albero e codici di Huffman
-     * ==============================================================
-     * Obiettivo: mostrare la costruzione dell'albero e i codici
-     * binari assegnati a ogni carattere.
-     *
-     * Cosa facciamo:
-     * 1. Ricostruiamo la heap (serve una nuova perche' la precedente
-     *    e' stata liberata)
-     * 2. Costruiamo l'albero con build_tree
-     * 3. Generiamo i codici con build_codes
-     * 4. Stampiamo la tabella: carattere, frequenza, codice, lunghezza
-     *
-     * La heap dopo build_tree e' vuota, ma la struttura va comunque liberata.
-     */
+    /* SCENARIO 2 — Albero e codici di Huffman */
     print_separator();
     printf("SCENARIO 2 - Albero di Huffman e codici binari\n");
     print_separator();
@@ -214,18 +179,7 @@ int main(void)
     }
 
 
-    /* ==============================================================
-     * SCENARIO 3 — Compressione
-     * ==============================================================
-     * Obiettivo: codificare il testo e mostrare il rapporto di
-     * compressione.
-     *
-     * Cosa facciamo:
-     * 1. Chiamiamo encode che sostituisce ogni carattere con il
-     *    suo codice binario
-     * 2. encode stampa automaticamente le statistiche
-     * 3. Stampiamo la stringa di bit completa
-     */
+    /* SCENARIO 3 — Compressione */
     print_separator();
     printf("SCENARIO 3 - Compressione (encode)\n");
     print_separator();
@@ -236,17 +190,7 @@ int main(void)
     printf("\nLunghezza stringa di bit: %d caratteri\n", (int)strlen(encoded));
 
 
-    /* ==============================================================
-     * SCENARIO 4 — Decompressione e verifica
-     * ==============================================================
-     * Obiettivo: decodificare la stringa di bit e verificare che
-     * il risultato sia identico al testo originale.
-     *
-     * Cosa facciamo:
-     * 1. Chiamiamo decode con la stringa di bit e la radice dell'albero
-     * 2. Confrontiamo il testo decodificato con l'originale usando strcmp
-     * 3. Stampiamo "DECODIFICA CORRETTA" o "ERRORE"
-     */
+    /* SCENARIO 4 — Decompressione e verifica */
     print_separator();
     printf("SCENARIO 4 - Decompressione e verifica\n");
     print_separator();
@@ -264,12 +208,7 @@ int main(void)
     }
 
 
-    /* ==============================================================
-     * PULIZIA DELLA MEMORIA
-     * ==============================================================
-     * Liberiamo tutta la memoria allocata dinamicamente per evitare
-     * memory leak.
-     */
+    /* Pulizia della memoria */
     free(encoded);
     free(decoded);
     free_tree(root);
