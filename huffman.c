@@ -13,10 +13,6 @@ static void swap(HuffNode **a, HuffNode **b)
 }
 
 
-/* heapify_down (sift-down) — Ripristina la proprieta' heap
- * facendo "scendere" il nodo all'indice i.
- * Complessita': O(log n) — al massimo percorre l'altezza dell'albero.
- */
 static void heapify_down(MinHeap *h, int i)
 {
     int smallest = i;            /* ipotizziamo che i sia il piu' piccolo */
@@ -42,10 +38,6 @@ static void heapify_down(MinHeap *h, int i)
 }
 
 
-/* heapify_up (sift-up) — Ripristina la proprieta' heap
- * facendo "risalire" il nodo all'indice i.
- * Complessita': O(log n).
- */
 static void heapify_up(MinHeap *h, int i)
 {
     /* Finche' non siamo alla radice E il padre ha frequenza maggiore */
@@ -62,7 +54,7 @@ static void heapify_up(MinHeap *h, int i)
 }
 
 
-/* create_heap — Crea e inizializza una MinHeap vuota. */
+
 MinHeap* create_heap(int capacity)
 {
     MinHeap *h = (MinHeap *)malloc(sizeof(MinHeap));
@@ -73,10 +65,9 @@ MinHeap* create_heap(int capacity)
 }
 
 
-/* heap_insert — Inserisce un nodo nella MinHeap. */
 void heap_insert(MinHeap *h, HuffNode *node)
 {
-    /* Se l'array e' pieno, raddoppiamo la capacita' */
+    /* Se l'array e' pieno raddoppiamo la capacita' */
     if (h->size == h->capacity) {
         h->capacity *= 2;
         h->data = (HuffNode **)realloc(h->data, h->capacity * sizeof(HuffNode *));
@@ -91,7 +82,6 @@ void heap_insert(MinHeap *h, HuffNode *node)
 }
 
 
-/* extract_min — Estrae il nodo con frequenza minima dalla heap. */
 HuffNode* extract_min(MinHeap *h)
 {
     if (h->size == 0) {
@@ -107,12 +97,7 @@ HuffNode* extract_min(MinHeap *h)
 }
 
 
-/* free_heap — Libera la memoria della struttura MinHeap.
- *
- * IMPORTANTE: libera solo l'array di puntatori e la struttura stessa.
- * NON libera i nodi HuffNode puntati, perche' quelli fanno parte
- * dell'albero di Huffman e devono essere liberati con free_tree.
- */
+
 void free_heap(MinHeap *h)
 {
     if (h != NULL) {
@@ -135,29 +120,15 @@ static HuffNode* create_leaf(unsigned char ch, int freq)
 }
 
 
-/* F1 — build_heap: Analizza il testo e costruisce la MinHeap iniziale.
- * Complessita':
- *   O(n) per contare le frequenze (n = lunghezza testo)
- *   O(k * log k) per inserire k nodi nella heap (k = caratteri distinti)
- *   Totale: O(n + k * log k), ma k <= 256 quindi e' essenzialmente O(n).
- */
 MinHeap* build_heap(const char *text, int length)
 {
-    /* PASSO 1: Array di conteggio frequenze.
-     * Indice = codice ASCII del carattere (0-255).
-     * Valore = quante volte quel carattere appare nel testo.
-     * Inizializziamo tutto a 0. */
+    /* Array di conteggio di frequenze*/
     int freq_array[ASCII_SIZE] = {0};
 
-    /* PASSO 2: Scorriamo il testo e contiamo ogni carattere.
-     * Usiamo (unsigned char) per assicurarci che l'indice sia 0-255
-     * e non negativo. */
     for (int i = 0; i < length; i++) {
         freq_array[(unsigned char)text[i]]++;
     }
 
-    /* PASSO 3: Contiamo quanti caratteri distinti ci sono.
-     * Ci serve per sapere quanti nodi foglia creare. */
     int distinct_chars = 0;
     for (int i = 0; i < ASCII_SIZE; i++) {
         if (freq_array[i] > 0) {
@@ -165,7 +136,7 @@ MinHeap* build_heap(const char *text, int length)
         }
     }
 
-    /* PASSO 4: Creiamo la heap e inseriamo un nodo per ogni carattere. */
+    /* Creiamo la heap e inseriamo un nodo per ogni carattere. */
     MinHeap *heap = create_heap(distinct_chars);
 
     for (int i = 0; i < ASCII_SIZE; i++) {
@@ -179,11 +150,7 @@ MinHeap* build_heap(const char *text, int length)
 }
 
 
-/* F2 — build_tree: Costruisce l'albero di Huffman dalla heap.
- * Complessita': O(k * log k) dove k = numero di caratteri distinti.
- * Ogni iterazione fa 2 estrazioni + 1 inserimento, ciascuno O(log k),
- * e ci sono k-1 iterazioni.
- */
+
 HuffNode* build_tree(MinHeap *heap)
 {
     /* Caso speciale: se la heap ha un solo nodo (testo con un solo
@@ -214,18 +181,15 @@ HuffNode* build_tree(MinHeap *heap)
 }
 
 
-/* build_codes_recursive — Funzione ricorsiva di supporto per build_codes.
- * Il "backtracking" avviene automaticamente: quando la funzione ritorna,
- * la variabile 'depth' torna al valore precedente, quindi il buffer
- * viene sovrascritto dal prossimo percorso.
- */
+/* build_codes_recursive — Funzione ricorsiva di supporto per build_codes. */
+
 static void build_codes_recursive(HuffNode *node, char codes[][MAX_CODE_LEN], int lengths[], char *buffer, int depth) //depth = profondità attuale ( = lunghezza del codice accumulato), lentgh = array della lunghezza dei codici
 {
     if (node == NULL) {
         return;
     }
 
-    /* Se e' una foglia: abbiamo trovato un carattere! */
+    /* Se e' una foglia: abbiamo trovato un carattere */
     if (node->left == NULL && node->right == NULL) {
         buffer[depth] = '\0';  /* terminiamo la stringa */
 
@@ -245,7 +209,7 @@ static void build_codes_recursive(HuffNode *node, char codes[][MAX_CODE_LEN], in
 }
 
 
-/* F3 — build_codes: Genera la tabella dei codici binari. */
+/* Genera la tabella dei codici binari. */
 void build_codes(HuffNode *root, char codes[][MAX_CODE_LEN], int lengths[])
 {
     /* Inizializziamo tutto a zero */
@@ -274,22 +238,22 @@ void build_codes(HuffNode *root, char codes[][MAX_CODE_LEN], int lengths[])
 }
 
 
-/* F4 — encode: Codifica il testo in una stringa di bit. */
+/* Codifica il testo in una stringa di bit. */
 char* encode(const char *text, char codes[][MAX_CODE_LEN])
 {
     int text_len = strlen(text);
 
-    /* PASSO 1: Calcoliamo quanti bit servono in totale */
+    /* Calcoliamo quanti bit servono in totale */
     int total_bits = 0;
     for (int i = 0; i < text_len; i++) {
         total_bits += strlen(codes[(unsigned char)text[i]]);
     }
 
-    /* PASSO 2: Allochiamo la stringa di bit (+1 per il terminatore '\0') */
+    /* Allochiamo la stringa di bit (+1 per il terminatore '\0') */
     char *encoded = (char *)malloc(total_bits + 1);
     encoded[0] = '\0';  /* iniziamo con stringa vuota */
 
-    /* PASSO 3: Per ogni carattere, appendiamo il suo codice binario */
+    /* Per ogni carattere, appendiamo il suo codice binario */
     int pos = 0;
     for (int i = 0; i < text_len; i++) {
         const char *code = codes[(unsigned char)text[i]]; //puntatore alla stringa, la stringa è il codice di huffman del carattere
@@ -302,7 +266,7 @@ char* encode(const char *text, char codes[][MAX_CODE_LEN])
     }
     encoded[pos] = '\0';  /* terminiamo la stringa */
 
-    /* PASSO 4: Calcoliamo e stampiamo le statistiche di compressione */
+    /* Calcoliamo e stampiamo le statistiche di compressione */
     int original_bits = text_len * 8;  /* ASCII usa 8 bit per carattere */
     double ratio = (double)total_bits / original_bits * 100.0;
 
@@ -315,7 +279,7 @@ char* encode(const char *text, char codes[][MAX_CODE_LEN])
 }
 
 
-/* F5 — decode: Decodifica una stringa di bit in testo. */
+/* Decodifica una stringa di bit in testo. */
 char* decode(HuffNode *root, const char *bits)
 {
     int bits_len = strlen(bits);
@@ -368,7 +332,7 @@ char* decode(HuffNode *root, const char *bits)
     return decoded;
 }
 
-/* free_tree — Libera ricorsivamente tutti i nodi dell'albero. */
+/* Libera ricorsivamente tutti i nodi dell'albero. */
 void free_tree(HuffNode *root)
 {
     if (root == NULL) {
